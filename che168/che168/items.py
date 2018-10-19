@@ -18,9 +18,11 @@ class Che168Item(scrapy.Item):
     city = scrapy.Field()
     price = scrapy.Field()
     distance = scrapy.Field()
-    volume = scrapy.Field() #排量
-    trubo = scrapy.Field() #挡位
-    last_time = scrapy.Field() #上牌时间
-    update_date = scrapy.Field() # 发布时间
+    volume = scrapy.Field()  # 排量
+    trubo = scrapy.Field()  # 挡位
+    last_date = scrapy.Field()  # 上牌时间
+    update_date = scrapy.Field()  # 发布时间
     address = scrapy.Field()
     owner = scrapy.Field()
+    gb = scrapy.Field()
+    imgs = scrapy.Field()

@@ -13,6 +13,7 @@ BOT_NAME = 'che168'
 
 SPIDER_MODULES = ['che168.spiders']
 NEWSPIDER_MODULE = 'che168.spiders'
+IMAGES_STORE = 'D:\che168_photo'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -64,9 +65,10 @@ ROBOTSTXT_OBEY = False
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'che168.pipelines.Che168Pipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'che168.pipelines.Che168Pipeline': 300,
+    'che168.pipelines.ImagespiderPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
