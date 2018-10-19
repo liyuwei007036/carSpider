@@ -38,9 +38,10 @@ class che168(scrapy.Spider):
         price = response.css('div.car-price ins::text').extract_first()
         car_address = response.css('div.car-address').extract_first()
 
-        imgs = response.css('div.fc-piclist fn-clear ul li.grid-10')
+        imgs = response.css('div ul li.grid-10')
         for img in imgs:
-            urls = img.css('img::attr(src)').extract()
+            print(img.css('a img').extract())
+            urls = img.css('a img::attr(src)').extract()
             print(urls)
 
         url = response.url
