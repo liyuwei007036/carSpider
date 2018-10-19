@@ -33,6 +33,16 @@ class che168(scrapy.Spider):
             yield scrapy.Request(url=next_url, callback=self.parse)
 
     def parse2(self, response):
+        vehicle_name = response.css('div .car-title h2::text').extract_first()
+        infos = response.css('div.details ul li span::text').extract()
+        price = response.css('div.car-price ins::text').extract_first()
+        car_address = response.css('div.car-address').extract_first()
+
+        imgs = response.css('div.fc-piclist fn-clear ul li.grid-10')
+        for img in imgs:
+            urls = img.css('img::attr(src)').extract()
+            print(urls)
+
         url = response.url
         searchObj = re.search(r'(\d+.html)', url)
         name = searchObj.group()
