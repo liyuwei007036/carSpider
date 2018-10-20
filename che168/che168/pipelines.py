@@ -13,7 +13,7 @@ from scrapy.pipelines.images import ImagesPipeline
 
 class Che168Pipeline(object):
     def __init__(self):
-        self.db = pymysql.connect("localhost", "root", "123456", "py_car")
+        self.db = pymysql.connect("localhost", "root", "123456", "spider")
         self.cursor = self.db.cursor()
 
     def process_item(self, item, spider):
