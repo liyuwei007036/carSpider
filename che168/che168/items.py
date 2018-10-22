@@ -26,3 +26,4 @@ class Che168Item(scrapy.Item):
     owner = scrapy.Field()
     gb = scrapy.Field()
     imgs = scrapy.Field()
+    phone = scrapy.Field()

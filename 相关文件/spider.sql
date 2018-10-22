@@ -12,10 +12,11 @@ CREATE TABLE `car` (
   `distance` double DEFAULT NULL,
   `volume` varchar(255) DEFAULT NULL,
   `trubo` varchar(255) DEFAULT NULL,
-  `last_date` varchar(0) DEFAULT NULL,
+  `last_date` varchar(255) DEFAULT NULL,
   `update_date` datetime DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `owner` varchar(255) DEFAULT NULL,
   `gb` varchar(255) DEFAULT NULL,
+  `phone` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`che168_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

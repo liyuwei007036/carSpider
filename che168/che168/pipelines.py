@@ -17,11 +17,11 @@ class Che168Pipeline(object):
         self.cursor = self.db.cursor()
 
     def process_item(self, item, spider):
-        sql = 'insert into car (che168_id, url, vehicle_name, province, city, price, distance, volume, trubo, last_date, update_date, address, owner, gb) VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s,%s)'
-        par = (item['che168_id'], str(item['url']), item['vehicle_name'], item['province'], item['city'],
+        sql = 'insert into car (che168_id, url, vehicle_name, province, city, price, distance, volume, trubo, last_date, update_date, address, owner, gb, phone) VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s,%s,%s)'
+        par = (item['che168_id'], item['url'], item['vehicle_name'], item['province'], item['city'],
                item['price'],
                item['distance'], item['volume'], item['trubo'], item['last_date'], item['update_date'],
-               item['address'], item['owner'], item['gb'])
+               item['address'], item['owner'], item['gb'], item['phone'],)
         self.cursor.execute(sql, par)
         self.db.commit()
         return item
