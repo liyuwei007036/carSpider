@@ -13,7 +13,22 @@ class che168(scrapy.Spider):
     def start_requests(self):
         urls = ['https://www.che168.com/china/a0_0ms1dgscncgpi1ltocspexx0/']
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+            yield scrapy.Request(url=url, callback=self.parse_city)
+
+    def parse_city(self, response):
+        citys = response.css('dl.cap-city dd a::attr(href)').extract()
+        citysls = []
+        for city in citys:
+            city_name = re.findall(r'/(.+)/list/#', city)
+            if len(city_name) < 1:
+                print('出错' + city)
+            else:
+                if city_name[0] not in citysls and city_name[0] != 'china':
+                    citysls.append(city_name[0])
+
+        for c in citysls:
+            city_url = 'https://www.che168.com/{0}/a0_0ms1dgscncgpi1ltocspexx0/'.format(c)
+            yield scrapy.Request(url=city_url, callback=self.parse)
 
     def parse(self, response):
         cars = response.css('li.list-photo-li a.carinfo')
