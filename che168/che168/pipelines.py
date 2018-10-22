@@ -4,7 +4,10 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+import json
 import re
+from http import cookiejar
+from urllib import request, parse
 
 import pymysql
 from scrapy import Request
@@ -17,14 +20,52 @@ class Che168Pipeline(object):
         self.cursor = self.db.cursor()
 
     def process_item(self, item, spider):
+        phone = self.get_phone_num(item_id=item['che168_id'], url=item['url'])
+        print(item['url'], '----------------------->', phone)
         sql = 'insert into car (che168_id, url, vehicle_name, province, city, price, distance, volume, trubo, last_date, update_date, address, owner, gb, phone) VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s,%s,%s)'
         par = (item['che168_id'], item['url'], item['vehicle_name'], item['province'], item['city'],
                item['price'],
                item['distance'], item['volume'], item['trubo'], item['last_date'], item['update_date'],
-               item['address'], item['owner'], item['gb'], item['phone'],)
+               item['address'], item['owner'], item['gb'], phone,)
         self.cursor.execute(sql, par)
         self.db.commit()
         return item
+
+    def get_phone_num(self, item_id, url):
+        phone = None
+        url = 'https://usedcarpv.che168.com/pv.ashx'
+        cookie = cookiejar.LWPCookieJar()
+        cookie_handler = request.HTTPCookieProcessor(cookie)
+        opener = request.build_opener(cookie_handler)
+        request.install_opener(opener)
+        request.urlopen(url=url)
+        cookie.save('cookie.txt', ignore_expires=True, ignore_discard=True)
+        cookie_dic = {}
+        for i in cookie:
+            cookie_dic[i.name] = i.value
+
+        uniqueid = cookie_dic.get('sessionid', None)
+        formData = {
+            '_appid': '2sc.pc',
+            'fromtype': '0',
+            'infoid': str(item_id),
+            'uniqueid': str(uniqueid),
+            'ts': '0',
+            '_sign': 'Ehedie3January',
+            'sessionid': str(uniqueid),
+            'detailpageurl': url,
+            'detailpageref': '',
+            'adfrom': '0'
+        }
+        get_num_url = 'https://callcenterapi.che168.com/CallCenterApi/v100/BindingNumber.ashx?' + parse.urlencode(
+            formData)
+        res = request.urlopen(get_num_url)
+        json_data = json.loads(res.read())
+        print('---------------->', json_data)
+        if json_data.get('returncode', 1) == 0:
+            if json_data.get('result', None) is not None:
+                phone = json_data.get('result').get('xnumber')
+        return phone
 
 
 class ImagespiderPipeline(ImagesPipeline):

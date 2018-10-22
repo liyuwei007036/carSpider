@@ -87,44 +87,6 @@ class che168(scrapy.Spider):
         for li in ul:
             img = 'https:' + li.css('li.grid-10 img::attr(src2)').extract_first()
             imgs.append(img)
-
         item['imgs'] = imgs
-        phone = self.get_phone_num(item_id=item['che168_id'], url=item['url'])
-        item['phone'] = phone
         yield item
 
-    def get_phone_num(self, item_id, url):
-        phone = None
-        url = 'https://usedcarpv.che168.com/pv.ashx'
-        cookie = cookiejar.LWPCookieJar()
-        cookie_handler = request.HTTPCookieProcessor(cookie)
-        opener = request.build_opener(cookie_handler)
-        request.install_opener(opener)
-        request.urlopen(url=url)
-        cookie.save('cookie.txt', ignore_expires=True, ignore_discard=True)
-        cookie_dic = {}
-        for i in cookie:
-            cookie_dic[i.name] = i.value
-
-        uniqueid = cookie_dic.get('sessionid', None)
-        formData = {
-            '_appid': '2sc.pc',
-            'fromtype': '0',
-            'infoid': str(item_id),
-            'uniqueid': str(uniqueid),
-            'ts': '0',
-            '_sign': 'Ehedie3January',
-            'sessionid': str(uniqueid),
-            'detailpageurl': url,
-            'detailpageref': '',
-            'adfrom': '0'
-        }
-        get_num_url = 'https://callcenterapi.che168.com/CallCenterApi/v100/BindingNumber.ashx?' + parse.urlencode(
-            formData)
-        res = request.urlopen(get_num_url)
-        json_data = json.loads(res.read())
-        if json_data.get('returncode', 1) == 0:
-            if json_data.get('result', None) is not None:
-                phone = json_data.get('result').get('xnumber')
-        print(phone)
-        return phone
