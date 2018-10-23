@@ -1,4 +1,5 @@
 import re
+import time
 
 import scrapy
 from che168.items import Che168Item
@@ -14,18 +15,21 @@ class che168(scrapy.Spider):
 
     def parse_city(self, response):
         citys = response.css('dl.cap-city dd a::attr(href)').extract()
-        citysls = []
-        for city in citys:
-            city_name = re.findall(r'/(.+)/list/#', city)
-            if len(city_name) < 1:
-                print('出错' + city)
-            else:
-                if city_name[0] not in citysls and city_name[0] != 'china':
-                    citysls.append(city_name[0])
+        if len(citys) < 1:
+            yield scrapy.Request(url='https://www.che168.com/china/a0_0ms1dgscncgpi1ltocspexx0/?date={0}'.format(time.time()), callback=self.parse_city)
+        else:
+            citysls = []
+            for city in citys:
+                city_name = re.findall(r'/(.+)/list/#', city)
+                if len(city_name) < 1:
+                    print('出错' + city)
+                else:
+                    if city_name[0] not in citysls and city_name[0] != 'china':
+                        citysls.append(city_name[0])
 
-        for c in citysls:
-            city_url = 'https://www.che168.com/{0}/a0_0ms1dgscncgpi1ltocspexx0/'.format(c)
-            yield scrapy.Request(url=city_url, callback=self.parse)
+            for c in citysls:
+                city_url = 'https://www.che168.com/{0}/a0_0ms1dgscncgpi1ltocspexx0/'.format(c)
+                yield scrapy.Request(url=city_url, callback=self.parse)
 
     def parse(self, response):
         cars = response.css('li.list-photo-li a.carinfo')
@@ -42,8 +46,10 @@ class che168(scrapy.Spider):
 
     def parse_item(self, response):
         url = response.url
-        if len(response.boyd) < 1:
+        if len(response.body) < 1:
+            url = url + "&date={0}".format(time.time())
             print('body为空 -------------------------->' + url)
+            yield scrapy.Request(url=url, callback=self.parse_item)
         else:
             imgs = response.css('div ul li.grid-10')
             for img in imgs:

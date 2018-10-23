@@ -10,8 +10,8 @@
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 # 代理IP连接池数量
-PROXY_POOL_MAX = 20
-PROXY_POOL_MIN = 10
+PROXY_POOL_MAX = 5
+PROXY_POOL_MIN = 3
 
 BOT_NAME = 'che168'
 
@@ -91,7 +91,6 @@ DOWNLOADER_MIDDLEWARES = {
 ITEM_PIPELINES = {
     'che168.pipelines.Che168Pipeline': 300,
     'che168.pipelines.ImagespiderPipeline': 300,
-
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
