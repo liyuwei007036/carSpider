@@ -12,6 +12,7 @@
 # 代理IP连接池数量
 PROXY_POOL_MAX = 5
 PROXY_POOL_MIN = 3
+# 是否开启代理
 ADD_PROXY = False
 
 BOT_NAME = 'che168'
