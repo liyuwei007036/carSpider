@@ -8,7 +8,7 @@ import random
 
 import requests
 from bs4 import BeautifulSoup
-from che168.settings import PROXY_POOL_MAX, USER_AGENTS, PROXY_POOL_MIN
+from che168.settings import PROXY_POOL_MAX, USER_AGENTS, PROXY_POOL_MIN, ADD_PROXY
 from scrapy import signals
 
 
@@ -76,20 +76,22 @@ class Che168DownloaderMiddleware(object):
         return s
 
     def process_request(self, request, spider):
-        cur_proxy = random.choice(self.proxy_pool)
-        request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
-                                                       cur_proxy.get('port'))
-        request.headers.setdefault('User-Agent', random.choice(USER_AGENTS))
-
-    def process_response(self, request, response, spider):
-        if response.status != 200:
-            self.proxy_pool.remove(self.cur_proxy)
+        if ADD_PROXY:
             cur_proxy = random.choice(self.proxy_pool)
             request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
                                                            cur_proxy.get('port'))
-            if len(self.proxy_pool) < PROXY_POOL_MIN:
-                print('------------------------IP代理池IP数量小于{0}正在重新获取'.format(PROXY_POOL_MIN))
-                self.get_proxies(url='http://www.xicidaili.com/nn/')
+            request.headers.setdefault('User-Agent', random.choice(USER_AGENTS))
+
+    def process_response(self, request, response, spider):
+        if ADD_PROXY:
+            if response.status != 200 or len(response.body) < 1:
+                self.proxy_pool.remove(self.cur_proxy)
+                cur_proxy = random.choice(self.proxy_pool)
+                request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
+                                                               cur_proxy.get('port'))
+                if len(self.proxy_pool) < PROXY_POOL_MIN:
+                    print('------------------------IP代理池IP数量小于{0}正在重新获取'.format(PROXY_POOL_MIN))
+                    self.get_proxies(url='http://www.xicidaili.com/nn/')
         return response
 
     def process_exception(self, request, exception, spider):
@@ -104,9 +106,10 @@ class Che168DownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         print('-------------------------{0} 已启动----------------'.format(spider.name))
-        print('-------------------------正在获取代理IP----------------')
-        url = 'http://www.xicidaili.com/wn/'
-        self.get_proxies(url)
+        if ADD_PROXY:
+            print('-------------------------正在获取代理IP----------------')
+            url = 'http://www.xicidaili.com/wn/'
+            self.get_proxies(url)
 
     def get_proxies(self, url):
         session = requests.Session()

@@ -12,6 +12,7 @@
 # 代理IP连接池数量
 PROXY_POOL_MAX = 5
 PROXY_POOL_MIN = 3
+ADD_PROXY = False
 
 BOT_NAME = 'che168'
 
@@ -90,7 +91,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'che168.pipelines.Che168Pipeline': 300,
-    'che168.pipelines.ImagespiderPipeline': 300,
+    # 'che168.pipelines.ImagespiderPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

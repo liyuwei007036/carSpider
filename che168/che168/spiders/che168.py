@@ -16,6 +16,7 @@ class che168(scrapy.Spider):
     def parse_city(self, response):
         citys = response.css('dl.cap-city dd a::attr(href)').extract()
         if len(citys) < 1:
+            print('----------------------获取城市列表失败正在重试--------------------------------')
             yield scrapy.Request(url='https://www.che168.com/china/a0_0ms1dgscncgpi1ltocspexx0/?date={0}'.format(time.time()), callback=self.parse_city)
         else:
             citysls = []

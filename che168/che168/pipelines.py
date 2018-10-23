@@ -13,6 +13,7 @@ import pymysql
 from scrapy import Request
 from scrapy.pipelines.images import ImagesPipeline
 
+cookie = cookiejar.LWPCookieJar()
 
 class Che168Pipeline(object):
     def __init__(self):
@@ -34,7 +35,6 @@ class Che168Pipeline(object):
     def get_phone_num(self, item_id, url):
         phone = None
         url = 'https://usedcarpv.che168.com/pv.ashx'
-        cookie = cookiejar.LWPCookieJar()
         cookie_handler = request.HTTPCookieProcessor(cookie)
         opener = request.build_opener(cookie_handler)
         request.install_opener(opener)
