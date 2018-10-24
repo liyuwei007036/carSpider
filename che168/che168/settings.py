@@ -14,6 +14,8 @@ PROXY_POOL_MAX = 5
 PROXY_POOL_MIN = 3
 # 是否开启代理
 ADD_PROXY = False
+# 爬取时间间隔 1表示1秒请求1次
+DOWNLOAD_DELAY = 1
 
 BOT_NAME = 'che168'
 
@@ -44,6 +46,7 @@ USER_AGENTS = [
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
+DUPEFILTER_CLASS = 'che168.redisopera.URLRedisFilter'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -51,7 +54,7 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 0
+
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16

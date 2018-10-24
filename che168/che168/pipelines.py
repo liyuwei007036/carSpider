@@ -10,19 +10,22 @@ from http import cookiejar
 from urllib import request, parse
 
 import pymysql
+from che168.redisopera import UrlFilterAndAdd
 from scrapy import Request
 from scrapy.pipelines.images import ImagesPipeline
 
 cookie = cookiejar.LWPCookieJar()
 
+
 class Che168Pipeline(object):
     def __init__(self):
         self.db = pymysql.connect("localhost", "root", "123456", "spider")
         self.cursor = self.db.cursor()
+        self.dupefilter = UrlFilterAndAdd()
+        self.cursor = self.db.cursor()
 
     def process_item(self, item, spider):
         phone = self.get_phone_num(item_id=item['che168_id'], url=item['url'])
-        print(item['url'], '----------------------->', phone)
         sql = 'insert into car (che168_id, url, vehicle_name, province, city, price, distance, volume, trubo, last_date, update_date, address, owner, gb, phone) VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s,%s,%s)'
         par = (item['che168_id'], item['url'], item['vehicle_name'], item['province'], item['city'],
                item['price'],
@@ -30,6 +33,7 @@ class Che168Pipeline(object):
                item['address'], item['owner'], item['gb'], phone,)
         self.cursor.execute(sql, par)
         self.db.commit()
+        self.dupefilter.add_url(item['url'])
         return item
 
     def get_phone_num(self, item_id, url):
