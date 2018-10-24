@@ -34,7 +34,7 @@ class Che168DownloaderMiddleware(object):
 
     def process_request(self, request, spider):
         if self.dupefilter.check_url(request.url):
-            return None
+            raise Exception('重复URL')
 
         if ADD_PROXY:
             cur_proxy = random.choice(self.proxy_pool)
