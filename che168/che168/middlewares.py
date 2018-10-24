@@ -80,7 +80,7 @@ class Che168DownloaderMiddleware(object):
             cur_proxy = random.choice(self.proxy_pool)
             request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
                                                            cur_proxy.get('port'))
-            request.headers.setdefault('User-Agent', random.choice(USER_AGENTS))
+        request.headers.setdefault('User-Agent', random.choice(USER_AGENTS))
 
     def process_response(self, request, response, spider):
         if ADD_PROXY:
@@ -92,6 +92,7 @@ class Che168DownloaderMiddleware(object):
                 if len(self.proxy_pool) < PROXY_POOL_MIN:
                     print('------------------------IP代理池IP数量小于{0}正在重新获取'.format(PROXY_POOL_MIN))
                     self.get_proxies(url='http://www.xicidaili.com/nn/')
+                return request
         return response
 
     def process_exception(self, request, exception, spider):
