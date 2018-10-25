@@ -8,6 +8,11 @@
 #     https://doc.scrapy.org/en/latest/topics/settings.html
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
+import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(BASE_DIR, 'che168'))
 
 # 代理IP连接池数量
 PROXY_POOL_MAX = 5
@@ -15,7 +20,7 @@ PROXY_POOL_MIN = 3
 # 是否开启代理
 ADD_PROXY = False
 # 爬取时间间隔 1表示1秒请求1次
-DOWNLOAD_DELAY = 1
+DOWNLOAD_DELAY = 0
 
 BOT_NAME = 'che168'
 
@@ -46,7 +51,6 @@ USER_AGENTS = [
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
-DUPEFILTER_CLASS = 'che168.redisopera.URLRedisFilter'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -80,7 +84,6 @@ DUPEFILTER_CLASS = 'che168.redisopera.URLRedisFilter'
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 543,
     'che168.middlewares.Che168DownloaderMiddleware': 125
     #    'che168.middlewares.Che168DownloaderMiddleware': 543,
 }

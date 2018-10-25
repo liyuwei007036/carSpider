@@ -19,7 +19,7 @@ cookie = cookiejar.LWPCookieJar()
 
 class Che168Pipeline(object):
     def __init__(self):
-        self.db = pymysql.connect("localhost", "root", "123456", "spider")
+        self.db = pymysql.connect("192.168.88.210", "root", "Tc5u2018!", "spider")
         self.cursor = self.db.cursor()
         self.dupefilter = UrlFilterAndAdd()
         self.cursor = self.db.cursor()

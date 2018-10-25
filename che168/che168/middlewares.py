@@ -5,13 +5,15 @@
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 import random
+import time
 
 import requests
 from bs4 import BeautifulSoup
-from che168.settings import PROXY_POOL_MAX, USER_AGENTS, PROXY_POOL_MIN, ADD_PROXY
 from scrapy import signals
+from scrapy.exceptions import IgnoreRequest
 
 from che168.redisopera import UrlFilterAndAdd
+from che168.settings import PROXY_POOL_MAX, USER_AGENTS, PROXY_POOL_MIN, ADD_PROXY
 
 
 class Che168DownloaderMiddleware(object):
@@ -33,26 +35,41 @@ class Che168DownloaderMiddleware(object):
         return s
 
     def process_request(self, request, spider):
-        if self.dupefilter.check_url(request.url):
-            raise Exception('重复URL')
 
+        if self.dupefilter.check_url(request.url):
+            raise IgnoreRequest('URL重复 无需再次处理 自动忽略{0}\r\n'.format(request.url))
+
+        request.headers.setdefault('User-Agent', random.choice(USER_AGENTS))
+
+        # 如果开启了代理 则自动添加代理
         if ADD_PROXY:
             cur_proxy = random.choice(self.proxy_pool)
             request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
                                                            cur_proxy.get('port'))
-        request.headers.setdefault('User-Agent', random.choice(USER_AGENTS))
 
     def process_response(self, request, response, spider):
-        if ADD_PROXY:
-            if response.status != 200 or len(response.body) < 1:
-                self.proxy_pool.remove(self.cur_proxy)
-                cur_proxy = random.choice(self.proxy_pool)
-                request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
-                                                               cur_proxy.get('port'))
-                if len(self.proxy_pool) < PROXY_POOL_MIN:
-                    print('------------------------IP代理池IP数量小于{0}正在重新获取'.format(PROXY_POOL_MIN))
-                    self.get_proxies(url='http://www.xicidaili.com/nn/')
-                return request
+
+        # 如果返回的请求的body为空，很可能Ip被封掉了 进行暂停机制
+        if len(response.body) < 1:
+            print('Ip可能被封掉了 暂停5分钟后继续发起请求', end='\r\n')
+            for i in range(300):
+                time.sleep(1)
+                print('{0}s 后开始请求'.format(300 - i), end='\r\n')
+
+            return request
+
+        if ADD_PROXY and response.status != 200:
+            self.proxy_pool.remove(self.cur_proxy)
+            cur_proxy = random.choice(self.proxy_pool)
+
+            if len(self.proxy_pool) < PROXY_POOL_MIN:
+                print('------------------------IP代理池IP数量小于{0}正在重新获取'.format(PROXY_POOL_MIN))
+                self.get_proxies(url='http://www.xicidaili.com/nn/')
+
+            request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
+                                                           cur_proxy.get('port'))
+            return request
+
         return response
 
     def process_exception(self, request, exception, spider):
