@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'che168'))
 PROXY_POOL_MAX = 5
 PROXY_POOL_MIN = 3
 # 是否开启代理
-ADD_PROXY = False
+ADD_PROXY = True
 # 爬取时间间隔 1表示1秒请求1次
 DOWNLOAD_DELAY = 0
 

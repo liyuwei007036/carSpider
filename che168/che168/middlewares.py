@@ -6,6 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 import random
 import time
+from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
@@ -17,6 +18,7 @@ from che168.settings import PROXY_POOL_MAX, USER_AGENTS, PROXY_POOL_MIN, ADD_PRO
 
 
 class Che168DownloaderMiddleware(object):
+
     def __init__(self):
         self.dupefilter = UrlFilterAndAdd()
 
@@ -37,7 +39,7 @@ class Che168DownloaderMiddleware(object):
     def process_request(self, request, spider):
 
         if self.dupefilter.check_url(request.url):
-            raise IgnoreRequest('URL重复 无需再次处理 自动忽略{0}\r\n'.format(request.url))
+            raise IgnoreRequest('{1} URL重复 无需再次处理 自动忽略{0}\r\n'.format(request.url, datetime.now()))
 
         request.headers.setdefault('User-Agent', random.choice(USER_AGENTS))
 
@@ -51,7 +53,7 @@ class Che168DownloaderMiddleware(object):
 
         # 如果返回的请求的body为空，很可能Ip被封掉了 进行暂停机制
         if len(response.body) < 1:
-            print('Ip可能被封掉了 暂停5分钟后继续发起请求', end='\r\n')
+            print('{0} Ip可能被封掉了 暂停5分钟后继续发起请求 {1}'.format(datetime.now(), response.url), end='\r\n')
             for i in range(300):
                 time.sleep(1)
                 print('{0}s 后开始请求'.format(300 - i), end='\r\n')
@@ -63,7 +65,7 @@ class Che168DownloaderMiddleware(object):
             cur_proxy = random.choice(self.proxy_pool)
 
             if len(self.proxy_pool) < PROXY_POOL_MIN:
-                print('------------------------IP代理池IP数量小于{0}正在重新获取'.format(PROXY_POOL_MIN))
+                print('{1}------------------------IP代理池IP数量小于{0}正在重新获取'.format(PROXY_POOL_MIN, datetime.now()))
                 self.get_proxies(url='http://www.xicidaili.com/nn/')
 
             request.meta["proxy"] = '{0}://{1}:{2}'.format(cur_proxy.get('type'), cur_proxy.get('ip'),
@@ -73,17 +75,10 @@ class Che168DownloaderMiddleware(object):
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
-        pass
+        print(exception)
 
     def spider_opened(self, spider):
-        print('-------------------------{0} 已启动----------------'.format(spider.name))
+        print('{1} -------------------------{0} 已启动----------------'.format(spider.name, datetime.now()))
         if ADD_PROXY:
             print('-------------------------正在获取代理IP----------------')
             url = 'http://www.xicidaili.com/wn/'

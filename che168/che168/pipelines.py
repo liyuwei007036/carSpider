@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
+import json
+import re
 # Define your item pipelines here
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-import json
-import re
+from datetime import datetime
 from http import cookiejar
 from urllib import request, parse
 
 import pymysql
-from che168.redisopera import UrlFilterAndAdd
 from scrapy import Request
 from scrapy.pipelines.images import ImagesPipeline
+
+from che168.redisopera import UrlFilterAndAdd
 
 cookie = cookiejar.LWPCookieJar()
 
@@ -34,6 +36,7 @@ class Che168Pipeline(object):
         self.cursor.execute(sql, par)
         self.db.commit()
         self.dupefilter.add_url(item['url'])
+        print('{2} 保存成功{0}---{1}'.format(item['vehicle_name'], item['url'], datetime.now()))
         return item
 
     def get_phone_num(self, item_id, url):
@@ -63,12 +66,14 @@ class Che168Pipeline(object):
         }
         get_num_url = 'https://callcenterapi.che168.com/CallCenterApi/v100/BindingNumber.ashx?' + parse.urlencode(
             formData)
-        res = request.urlopen(get_num_url)
-        json_data = json.loads(res.read())
-        print('---------------->', json_data)
-        if json_data.get('returncode', 1) == 0:
-            if json_data.get('result', None) is not None:
-                phone = json_data.get('result').get('xnumber')
+        try:
+            res = request.urlopen(get_num_url)
+            json_data = json.loads(res.read())
+            if json_data.get('returncode', 1) == 0:
+                if json_data.get('result', None) is not None:
+                    phone = json_data.get('result').get('xnumber')
+        except Exception as e:
+            print('{0}获取电话号码失败'.format(datetime.now()), ' ', e)
         return phone
 
 
